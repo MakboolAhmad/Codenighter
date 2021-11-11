@@ -81,6 +81,68 @@ class Semester extends REST_Controller {
         }
     }
 
+    public function get_student_project_get() {
+        $headers = $this->input->request_headers();
+        $token = $headers['Authorization'];
+
+        try {
+            $stdent_data = authorization::validateToken($token);
+            if ($stdent_data === false) {
+                $this->response(array(
+                    "status" => 0,
+                    "message" => "anuthorized acess"
+                        ), parent::HTTP_UNAUTHORIZED);
+            } else {
+                $student_id = $stdent_data->data->id;
+                $project = $this->Semester_model->get_student_project($student_id);
+                $this->response(array(
+                    "status" => 1,
+                    "message" => "project found",
+                    "projects" => $project,
+                ));
+            }
+        } catch (Exception $ex) {
+            $this->response(array(
+                "status" => 0,
+                "message" => $ex->getMessage()
+                    ), parent::HTTP_NOT_FOUND);
+        }
+    }
+
+    // delete project by student 
+    public function delete_project_delete() {
+
+        $headers = $this->input->request_headers();
+        $token = $headers['Authorization'];
+        try {
+            $student_data = AUTHORIZATION::validateToken($token);
+            if ($student_data === false) {
+                $this->response(array(
+                    "status" => 0,
+                    "message" => "anuthorized acess"
+                        ), parent::HTTP_UNAUTHORIZED);
+            } else {
+                $student_id = $student_data->data->id;
+                if ($this->Semester_model->delete_project($student_id)) {
+                    $this->response(array(
+                        "status" => 1,
+                        "message" => "project delete successfully"
+                            ), parent::HTTP_OK);
+                } else {
+                    $this->response(array(
+                        "status" => 0,
+                        "message" => "not deltet project"
+                            ), parent::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            }
+        } catch (Exception $ex) {
+            $this->response(array(
+                "status" => 0,
+                "message" => $ex->getMessage()
+                    ), parent::HTTP_NOT_FOUND);
+        }
+    }
+
 }
 ?>
 
